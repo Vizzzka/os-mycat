@@ -2,7 +2,7 @@
 
 ## Team
 
- - [Volodymyr Chernetskyi](https://github.com/chernetskyi)
+ - [Victoria Usachova](https://github.com/chernetskyi)
 
 ## Prerequisites
 
