@@ -2,7 +2,7 @@
 
 ## Team
 
- - [Volodymyr Chernetskyi](https://github.com/chernetskyi)
+ - [Usachova Victoria](https://github.com/Vizzzka)
 
 ## Prerequisites
 
@@ -30,7 +30,7 @@ The rest prerequisites (such as development libraries) can be found in the [pack
 ## Usage
 
 ```bash
-add [a] [b]
+mycat [-h|--help] [-A] <file1> <file2> ... <fileN>
 ```
 
 If less than two numbers provided, zeroes are used instead. If more - an error occurs.
