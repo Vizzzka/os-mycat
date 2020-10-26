@@ -2,7 +2,9 @@
 
 ## Team
 
- - [Usachova Victoria](https://github.com/Vizzzka)
+
+ [Usachova Victoria](https://github.com/Vizzzka)
+
 
 ## Prerequisites
 
