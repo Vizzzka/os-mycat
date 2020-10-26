@@ -33,6 +33,4 @@ The rest prerequisites (such as development libraries) can be found in the [pack
 mycat [-h|--help] [-A] <file1> <file2> ... <fileN>
 ```
 
-If less than two numbers provided, zeroes are used instead. If more - an error occurs.
-
 Help flags `-h`/`--help` support is available.
