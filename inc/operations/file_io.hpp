@@ -6,11 +6,15 @@ typedef unsigned char u_char;
 typedef unsigned long u_long;
 typedef unsigned long long u_longlong;
 
+#include <string>
 
 #ifdef WIN32
 #include <Windows.h>
 typedef __int64 ssize_t;
 #elif __linux__
+#define STD_INPUT_HANDLE 0
+#define STD_OUTPUT_HANDLE 1
+#define STD_ERROR_HANDLE 2
 #define INVALID_HANDLE_VALUE       -1		//determine parameter for error
 typedef int HANDLE;							//define type of file descriptor
 typedef unsigned long DWORD;
@@ -60,5 +64,8 @@ ssize_t write_io_file_hcode(HANDLE file_handle,
 
 bool close_io_file(HANDLE file_handle);
 
+HANDLE get_std_handle(DWORD std_fd);
+
+std::string get_error_message();
 
 #endif //ADDER_OPERATIONS_HPP

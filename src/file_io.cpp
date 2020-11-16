@@ -1,5 +1,6 @@
 #include "operations/file_io.hpp"
-
+#include <cstdio>
+#include <string>
 
 #ifdef WIN32 // create_io_file for windows
 HANDLE create_io_file(const char* file_name,
@@ -30,7 +31,7 @@ HANDLE create_io_file(const char* file_name,
 
 
 #ifdef WIN32 // read_io_file for Windows
-u_long read_io_file(HANDLE file_handle,
+ssize_t read_io_file(HANDLE file_handle,
 					LPVOID read_buffer,
 					DWORD bytes_to_read) {
 	u_long result_bytes = 0;
@@ -75,7 +76,7 @@ ssize_t read_io_file(HANDLE file_handle,
 #endif
 
 #ifdef WIN32 // write_io_file for Windows
-u_long write_io_file(HANDLE file_handle,
+ssize_t write_io_file(HANDLE file_handle,
 					LPVOID read_buffer,
 					DWORD bytes_to_write) {
 	u_long result_bytes = 0;
@@ -120,18 +121,30 @@ ssize_t write_io_file(HANDLE file_handle,
 ssize_t write_io_file_hcode(HANDLE file_handle,
                             LPVOID read_buffer,
                             DWORD  bytes_to_write) {
-	u_long result_bytes = 0;
-	BOOL result = ::WriteFile(file_handle,
-							  read_buffer,
-							  bytes_to_write,
-							  &result_bytes,
-							  0);
-	if(!result)
-	{
-		return -1;
-	}
+	size_t written_bytes = 0;
+	char* read_buffer_h = reinterpret_cast<char* >(read_buffer);
+	while( written_bytes < bytes_to_write ) {
 
-	return result_bytes;
+		size_t valid_bytes = 0;
+		while((valid_bytes < bytes_to_write - written_bytes)
+		      && (isspace((unsigned char)read_buffer_h[written_bytes + valid_bytes])
+		          || isprint((unsigned char)read_buffer_h[written_bytes + valid_bytes]) != 0))
+			valid_bytes++;
+		if (write_io_file(file_handle,
+		                  read_buffer_h + written_bytes,
+		                  valid_bytes) < 0) {
+			return -1;
+		}
+		written_bytes += valid_bytes;
+		if (written_bytes == bytes_to_write)
+			return 0;
+		char hidden_ch = read_buffer_h[written_bytes];
+		char h_buf[5];
+		sprintf(h_buf, "\\x%02X", 0xFF & hidden_ch);
+		write_io_file(file_handle, h_buf, 4);
+		written_bytes += 1;
+	}
+	return 0;
 }
 
 #elif __unix__
@@ -178,6 +191,32 @@ bool close_io_file(HANDLE file_handle) {
         return false;
 
     return true;
+}
+#else
+#error: unknown OS
+#endif
+
+#ifdef WIN32 //get_std_handle for Windows
+HANDLE get_std_handle(DWORD std_fd) {
+	return GetStdHandle(std_fd);
+}
+#elif __unix__
+HANDLE get_std_handle(DWORD std_fd) {
+    return std_fd;
+}
+#else
+#error: unknown OS
+#endif
+
+
+#ifdef WIN32
+std::string get_error_message() {
+	return "Error code: " + std::to_string(GetLastError());
+}
+#elif __unix__
+std::string get_error_message() {
+	char* err_buff = &strerror(errno) [ '\0'];
+	return err_buff;
 }
 #else
 #error: unknown OS
