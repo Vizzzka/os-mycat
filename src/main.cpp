@@ -17,7 +17,12 @@ int openFiles(const std::vector<std::string>& file_names,
                                 OPEN_EXISTING,
                                 FILE_ATTRIBUTE_NORMAL);
         if (fd == INVALID_HANDLE_VALUE) {
-        	std::cerr << get_error_message();
+	        std::string err = get_error_message();
+	        char* err_buff = new char[err.size() + 1];
+	        std::copy(err.begin(), err.end(), err_buff);
+	        err_buff[err.size()] = '\0';
+	        write_io_file(STDERR_HANDLE, err_buff, strlen(err_buff));
+	        delete[] err_buff;
             return -1;
         }
         file_descriptors.push_back(fd);
@@ -34,7 +39,12 @@ int readFiles(const std::vector<HANDLE>& file_descriptors, bool flagA) {
         while(read_bytes > 0) {
             read_bytes = read_io_file(fd, buffer, bytesPerRead);
             if (read_bytes < 0) {
-	            std::cerr << get_error_message();
+	            std::string err = get_error_message();
+	            char* err_buff = new char[err.size() + 1];
+	            std::copy(err.begin(), err.end(), err_buff);
+	            err_buff[err.size()] = '\0';
+	            write_io_file(STDERR_HANDLE, err_buff, strlen(err_buff));
+	            delete[] err_buff;
                 delete[] buffer;
                 return -1;
             }
