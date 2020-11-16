@@ -5,20 +5,24 @@
 
 
 const size_t bytesPerRead = 1024;
-const int STDOUT_FD = 1;
-const int STDERR_FD = 2;
+const HANDLE STDOUT_HANDLE = get_std_handle(STD_OUTPUT_HANDLE);
+const HANDLE STDERR_HANDLE = get_std_handle(STD_ERROR_HANDLE);
 
 int openFiles(const std::vector<std::string>& file_names,
-              std::vector<int>& file_descriptors)
+              std::vector<HANDLE>& file_descriptors)
 {
     for (const auto& fileName: file_names) {
-        int fd = create_io_file(fileName.c_str(),
+	    HANDLE fd = create_io_file(fileName.c_str(),
                                 GENERIC_READ,
                                 OPEN_EXISTING,
                                 FILE_ATTRIBUTE_NORMAL);
-        if (fd < 0) {
-            char* err_buff = &strerror(errno) [ '\0'];
-            write_io_file(STDERR_FD, err_buff, strlen(err_buff));
+        if (fd == INVALID_HANDLE_VALUE) {
+	        std::string err = get_error_message();
+	        char* err_buff = new char[err.size() + 1];
+	        std::copy(err.begin(), err.end(), err_buff);
+	        err_buff[err.size()] = '\0';
+	        write_io_file(STDERR_HANDLE, err_buff, strlen(err_buff));
+	        delete[] err_buff;
             return -1;
         }
         file_descriptors.push_back(fd);
@@ -27,7 +31,7 @@ int openFiles(const std::vector<std::string>& file_names,
 }
 
 
-int readFiles(const std::vector<int>& file_descriptors, bool flagA) {
+int readFiles(const std::vector<HANDLE>& file_descriptors, bool flagA) {
     for (const auto& fd: file_descriptors) {
         char* buffer = new char [bytesPerRead];
         ssize_t read_bytes = 1;
@@ -35,15 +39,19 @@ int readFiles(const std::vector<int>& file_descriptors, bool flagA) {
         while(read_bytes > 0) {
             read_bytes = read_io_file(fd, buffer, bytesPerRead);
             if (read_bytes < 0) {
-                char* err_buff = &strerror(errno) [ '\0'];
-                write_io_file(STDERR_FD, err_buff, strlen(err_buff));
+	            std::string err = get_error_message();
+	            char* err_buff = new char[err.size() + 1];
+	            std::copy(err.begin(), err.end(), err_buff);
+	            err_buff[err.size()] = '\0';
+	            write_io_file(STDERR_HANDLE, err_buff, strlen(err_buff));
+	            delete[] err_buff;
                 delete[] buffer;
                 return -1;
             }
             if (flagA)
-                write_io_file_hcode(STDOUT_FD, buffer, read_bytes);
+	            write_io_file_hcode(STDOUT_HANDLE, buffer, read_bytes);
             else
-                write_io_file(STDOUT_FD, buffer, read_bytes);
+                write_io_file(STDOUT_HANDLE, buffer, read_bytes);
         }
 
         delete[] buffer;
@@ -55,7 +63,7 @@ int readFiles(const std::vector<int>& file_descriptors, bool flagA) {
 
 int main(int argc, char **argv) {
     std::vector<std::string> file_names;
-    std::vector<int> file_descriptors;
+    std::vector<HANDLE> file_descriptors;
     bool flagA = false;
     namespace po = boost::program_options;
 
