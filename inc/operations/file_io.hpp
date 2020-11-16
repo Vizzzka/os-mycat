@@ -27,6 +27,7 @@ typedef char * LPVOID;
 #ifdef WIN32
 // nothing to do
 #elif __unix__
+#include <string.h>
 #include <cerrno>
 #include <ctype.h>
 #include <sys/types.h>

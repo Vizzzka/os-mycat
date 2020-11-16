@@ -1,0 +1,2 @@
+It is input2.txt!
+
