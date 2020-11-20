@@ -30,6 +30,9 @@ target_link_libraries(mycat file_io)
 target_link_libraries(mycat Boost::program_options)
 
 
+# Include default CMake configuration
+include(cmake/config.cmake)
+
 # Sanitizers configuration
 if (ENABLE_SANITIZERS)
     set(SANITIZE_UNDEFINED ON)
