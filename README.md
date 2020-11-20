@@ -1,4 +1,4 @@
-# Lab 2 Option 3: Myshell
+# Lab 2 Option 3: MyCat
 
 ## Team
 
